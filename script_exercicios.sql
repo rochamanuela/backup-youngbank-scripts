@@ -20,9 +20,9 @@ where e.codigo = 2 and p.valorPago = null;
 
 -- 04. Consulte os clientes (nome) e seus respectivos endereços (logradouro, cidade e uf) que moram na cidade de São Paulo
 select 
-	c.nome_razaosocial, 
-	e.logradouro, 
-	e.cidade,
+    c.nome_razaosocial, 
+    e.logradouro, 
+    e.cidade,
     e.uf
 from cliente c 
 join endereco e on e.codigo = c.codigoEndereco
@@ -34,7 +34,7 @@ where email like '%gmail%';
 
 -- 06. Consulte as contas (agencia, numero e tipo) que possuem investimentos de longo prazo (tipo, aporte e prazo)
 select
-	c.agencia,
+    c.agencia,
     c.numero,
     c.tipo as tipoConta,
     i.tipo as tipoInvestimento,
@@ -49,7 +49,7 @@ select nome_razaoSocial, numero from cliente left join contato on cliente.codigo
 
 -- 08. Quais contas (agencia, numero e tipo) tiveram seus emprestimos negados (data solicitação, valor solicitado e se foi aprovado ou não)
 select
-	c.agencia,
+    c.agencia,
     c.numero,
     c.tipo as tipoConta,
     e.dataSolicitacao,
@@ -61,7 +61,7 @@ where e.aprovado = 0;
 
 -- 09. Quais foram os cartões (numero e bandeira) que realizaram movimentações no dia 01/02/2023 (data, operação e valor)
 select
-	c.numero as numeroCartao,
+    c.numero as numeroCartao,
     c.bandeira,
     m.dataHora as dataMovimento,
     m.operacao,
@@ -72,7 +72,7 @@ where dataHora = '2023-02-01';
 
 -- 10. Consulte os clientes PJ (nome e CNPJ) e suas respectivas cidades e telefone de contato
 select
-	c.nome_razaosocial,
+    c.nome_razaosocial,
     j.cnpj,
     e.cidade,
     t.numero
@@ -83,7 +83,7 @@ inner join contato t on t.codigoCliente = c.codigo;
 
 -- 11. Consulte as contas (agencia e numero) seus cartões (numero e bandeira) e suas respectivas movimentações (operacao e valor)
 select
-	c.agencia,
+    c.agencia,
     c.numero,
     a.numero as numeroCartao,
     a.bandeira,
@@ -95,7 +95,7 @@ inner join movimentacao m on m.codigoCartao = a.codigo;
 
 -- 12. Consulte as contas (agencia e numero) seus emprestimos (codigos, datas de solicitação e valores solicitados) e suas respectivas parcelas (numero, vencimento e valor pago)
 select
-	c.agencia,
+    c.agencia,
     c.numero,
     e.codigo,
     e.dataSolicitacao,
@@ -109,18 +109,55 @@ inner join emprestimoparcela p on p.codigoEmprestimo = e.codigo;
 
 -- 13. Consulte todos clientes pessoa física (nome e cpf) e suas respectivas contas (agencia, numero)
 select
-	c.nome_razaosocial as nome,
+    c.nome_razaosocial as nome,
     f.cpf,
     a.agencia,
-    a.numero
-from cliente c
-inner join cliente_pf on f.codigoCliente = c.codigo
-inner join conta a on a.codigo = 
+    a.numero,
+    r.codigoCliente
+from contacliente r
+inner join cliente c on c.codigo = r.codigoCliente
+inner join cliente_pf f on f.codigoCliente = c.codigo
+inner join conta a on a.codigo = r.codigoConta
 
 -- 14. Consulte as transferências (com valores) realizadas pela cliente Abigail Barateiro Cangueiro
+select
+     r.codigoCliente
+     m.valor,
+     m.dataHora,
+     m.operacao,
+     c.nome_razaosocial
+from contacliente r
+inner join movimentacao m on m.codigoConta = r.codigoConta
+inner join cliente c on c.codigo = r.codigoCliente
+where c.nome_razaosocial = 'Abigail Barateiro Cangueiro' and m.operacao = 'transferência';
 
 -- 15. Consulte as operações de crédito e debito (com valores) realizadas pela cliente Alice Barbalho Vilalobos
+select
+     r.codigoCliente
+     m.valor,
+     m.dataHora,
+     m.operacao,
+     c.nome_razaosocial
+from contacliente r
+inner join movimentacao m on m.codigoConta = r.codigoConta
+inner join cliente c on c.codigo = r.codigoCliente
+where c.nome_razaosocial = 'Alice Barbalho Vilalobos' and m.operacao != 'transferência';
 
 -- 16. Consulte quais clientes (nomes) realizaram movimentações em 01/02/2023
+select
+      c.nome_razaosocial,
+      m.tipo as tipoMovimentacao,
+      m.dataHora
+from contacliente r
+inner join cliente c on c.codigo = codigoCliente
+inner join movimentacao m on m.codigoConta = r.codigoConta
+where m.dataHora = '2023-02-01';
 
 -- 17. Consulte os clientes (nome) que possuem emprestimos aprovados apresentando os valores solicitados e os valores totais que serão pagos (com juros)
+select
+     c.nome_razaosocial,
+     e.valorSolicitado,
+     e.valorTotal,
+     e.juros
+from cliente c
+inner join emprestimo e on e.codigoCliente = c.codigo;
